@@ -1,13 +1,14 @@
 <template>
   <div id="home">
     <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
-    <scroll class="content">
+    <scroll class="content" ref="scroll" :probe-type="3" @scroll="contentScroll">
       <home-swiper :banners="banners"></home-swiper>
       <home-recommend-view :recommends="recommends"></home-recommend-view>
       <feature-view></feature-view>
       <tab-control class="tab-control" :titles="['流行','新款','精选']" @tabClick="tabClick"></tab-control>
       <goods-list :goods="showGoods"></goods-list>
     </scroll>
+    <back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
   </div>
 </template>
 
@@ -20,6 +21,7 @@
   import TabControl from 'components/content/tabControl/TabControl'
   import GoodsList from 'components/content/goods/GoodsList'
   import Scroll from 'components/common/scroll/Scroll'
+  import BackTop from 'components/content/backTop/BackTop'
 
   import { getHomeMultidata, getHomeGoods } from 'network/home'
 
@@ -32,7 +34,8 @@
       NavBar,
       TabControl,
       GoodsList,
-      Scroll
+      Scroll,
+      BackTop
     },
     data() {
       return {
@@ -43,7 +46,8 @@
           'new': {page: 0, list: []},
           'sell': {page: 0, list: []}
         },
-        currentType: 'pop'
+        currentType: 'pop',
+        isShowBackTop: true
       }
     },
     created() {
@@ -71,6 +75,12 @@
             this.currentType = 'sell'
             break
         }
+      },
+      backClick() {
+        this.$refs.scroll.scrollTo(0, 0)
+      },
+      contentScroll(position) {
+        this.isShowBackTop = -position.y > 1000
       },
 
       // 网络请求
@@ -119,7 +129,6 @@
     position: absolute;
     top: 44px;
     bottom: 49px;
-    /* height: 300px; */
     overflow: hidden;
   }
 </style>
