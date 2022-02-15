@@ -15,11 +15,11 @@ export default {
     probeType: {
       type: Number,
       default: 0
+    },
+    pullUpLoad: {
+      type: Boolean,
+      default: false
     }
-    // pullUpLoad: {
-    //   type: Boolean,
-    //   default: false
-    // }
   },
   data() {
     return {
@@ -28,13 +28,13 @@ export default {
   },
   methods: {
     scrollTo(x, y, time=400) {
-      this.scroll.scrollTo(x, y, time)
+      this.scroll && this.scroll.scrollTo(x, y, time)
     },
     finishPullUp() {
-      this.scroll.finishPullUp()
+      this.scroll && this.scroll.finishPullUp()
     },
     refresh() {
-      this.scroll.refresh()
+      this.scroll && this.scroll.refresh()
     }
   },
   mounted() {
@@ -44,16 +44,19 @@ export default {
       pullUpLoad: this.pullUpLoad
     })
 
-    this.scroll.on('scroll', position => {
-      // console.log(position);
+    // 监听滚动位置
+    if(this.probeType == 2 || this.probeType ==3) {
+      this.scroll.on('scroll', position => {
       this.$emit('scroll', position)
-    })
-
-    
-    //上拉加载更多
-    // this.scroll.on('pullingUp', () => {
-    //   this.$emit('pullingUp')
-    // })
+      })
+    }
+    // 上拉加载更多
+    if(this.pullUpLoad) {
+      this.scroll.on('pullingUp', () => {
+        console.log('111');
+        this.$emit('pullingUp')
+      })
+    }
   }
 }
 </script>

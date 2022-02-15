@@ -1,7 +1,7 @@
 <template>
   <div id="home">
     <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
-    <scroll class="content" ref="scroll" :probe-type="3" @scroll="contentScroll" :pull-up-load="true">
+    <scroll class="content" ref="scroll" :probe-type="3" @scroll="contentScroll" :pull-up-load="true" @pullingUp="loadMore">
       <home-swiper :banners="banners"></home-swiper>
       <home-recommend-view :recommends="recommends"></home-recommend-view>
       <feature-view></feature-view>
@@ -24,6 +24,7 @@
   import BackTop from 'components/content/backTop/BackTop'
 
   import { getHomeMultidata, getHomeGoods } from 'network/home'
+  import { debounce } from 'common/utils'
 
   export default {
     name: "Home",
@@ -57,9 +58,12 @@
       this.getHomeGoods('new')
       this.getHomeGoods('sell')
 
+    },
+    mounted() {
+      const refresh = debounce(this.$refs.scroll.refresh, 300)
       // 监听item图片加载
       this.$bus.$on('itemImageLoad', () => {
-        this.$refs.scroll.refresh()
+        refresh()
       })
     },
     computed: {
@@ -88,10 +92,10 @@
       contentScroll(position) {
         this.isShowBackTop = -position.y > 1000
       },
-      // loadMore() {
-      //   this.getHomeGoods(this.currentType)
-      //   this.$refs.scroll.scroll.refresh()
-      // },
+      loadMore() {
+        this.getHomeGoods(this.currentType)
+        this.$refs.scroll.scroll.refresh()
+      },
 
       // 网络请求
       getHomeMultidata() {
@@ -105,7 +109,8 @@
         getHomeGoods(type, page).then(res => {
           this.goods[type].list.push(...res.data.list)
           this.goods[type].page += 1
-          // this.$refs.scroll.finishPullUp()
+          
+          this.$refs.scroll.finishPullUp()
         })
       }
     }
